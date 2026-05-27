@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>JUVO — Shop Smarter. Decide Faster.</title>
+<meta name="description" content="JUVO is an AI-powered shopping assistant that eliminates decision fatigue by delivering one confident, personalized recommendation — the best product at the best price, every time."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
+<style>
+/* ─── RESET & ROOT ─────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{
+  background:#060A12;
+  color:#D8E0F0;
+  font-family:'DM Sans',sans-serif;
+  font-weight:300;
+  line-height:1.7;
+  overflow-x:hidden;
+  cursor:none;
+}
+a{color:inherit;text-decoration:none}
+button{cursor:none}
+img{display:block;max-width:100%}
+
+/* ─── CUSTOM CURSOR ────────────────────────────── */
+#cursor{
+  position:fixed;width:12px;height:12px;
+  background:#0FD4C0;border-radius:50%;
+  pointer-events:none;z-index:99999;
+  transform:translate(-50%,-50%);
+  transition:transform .15s ease,width .25s ease,height .25s ease,background .25s ease;
+  mix-blend-mode:difference;
+}
+#cursor-ring{
+  position:fixed;width:40px;height:40px;
+  border:1px solid rgba(15,212,192,.35);
+  border-radius:50%;pointer-events:none;z-index:99998;
+  transform:translate(-50%,-50%);
+  transition:transform .4s cubic-bezier(.2,.7,.3,1),width .3s,height .3s,opacity .3s;
+}
+body:has(a:hover) #cursor,body:has(button:hover) #cursor{width:20px;height:20px}
+body:has(a:hover) #cursor-ring,body:has(button:hover) #cursor-ring{width:56px;height:56px;opacity:.5}
+
+/* ─── PAGE ROUTING ─────────────────────────────── */
+.page{display:none}
+.page.active{display:block}
+
+/* ─── NAVIGATION ───────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 56px;height:68px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  background:rgba(6,10,18,.8);
+  backdrop-filter:blur(24px);
+  transition:background .4s ease;
+}
+nav.scrolled{background:rgba(6,10,18,.96)}
+.nav-logo{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;font-size:1.6rem;
+  letter-spacing:.04em;
+  color:#E8F0FF;
+  cursor:none;
+}
+.nav-logo em{color:#0FD4C0;font-style:normal}
+.nav-links{display:flex;align-items:center;gap:2px;list-style:none}
+.nbtn{
+  background:none;border:none;
+  color:rgba(216,224,240,.5);
+  font-family:'DM Sans',sans-serif;
+  font-size:.85rem;font-weight:400;
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:8px 20px;
+  transition:color .3s ease;
+}
+.nbtn:hover,.nbtn.active{color:#E8F0FF}
+.nbtn.active{color:#0FD4C0}
+.nav-join{
+  margin-left:16px;
+  background:none;
+  border:1px solid rgba(15,212,192,.4);
+  color:#0FD4C0;
+  font-family:'DM Sans',sans-serif;
+  font-size:.8rem;font-weight:500;
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:9px 24px;
+  transition:all .3s ease;
+}
+.nav-join:hover{background:#0FD4C0;color:#060A12}
+
+/* ─── HERO ─────────────────────────────────────── */
+.hero{
+  min-height:100vh;
+  display:flex;align-items:center;
+  padding:100px 56px 80px;
+  position:relative;overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 70% 40%,rgba(15,212,192,.07) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 60% at 20% 80%,rgba(255,91,46,.05) 0%,transparent 60%);
+}
+/* Subtle grid */
+.hero-bg::after{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+  background-size:80px 80px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 20%,transparent 80%);
+}
+.hero-inner{
+  max-width:1180px;margin:0 auto;width:100%;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:100px;align-items:center;
+  position:relative;z-index:1;
+}
+.hero-eyebrow{
+  font-family:'DM Sans',sans-serif;
+  font-size:.72rem;font-weight:500;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:#0FD4C0;margin-bottom:28px;
+  display:flex;align-items:center;gap:12px;
+}
+.hero-eyebrow::before{
+  content:'';display:block;
+  width:32px;height:1px;background:#0FD4C0;
+}
+.hero h1{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;
+  font-size:clamp(3.5rem,6vw,5.5rem);
+  line-height:1.02;
+  letter-spacing:-.01em;
+  color:#E8F0FF;
+  margin-bottom:32px;
+}
+.hero h1 strong{font-weight:600;font-style:italic;color:#0FD4C0}
+.hero h1 .orange{color:#FF5B2E;font-weight:600;font-style:italic}
+.hero-body{
+  font-size:1.05rem;font-weight:300;
+  color:rgba(216,224,240,.7);
+  line-height:1.8;max-width:440px;
+  margin-bottom:48px;
+}
+.hero-body strong{color:#E8F0FF;font-weight:400}
+.waitlist-wrap{margin-bottom:20px}
+.waitlist-input-group{
+  display:flex;gap:0;
+  border-bottom:1px solid rgba(255,255,255,.15);
+  max-width:420px;
+  transition:border-color .3s;
+}
+.waitlist-input-group:focus-within{border-color:#0FD4C0}
+.waitlist-input-group input{
+  flex:1;background:none;border:none;outline:none;
+  color:#E8F0FF;
+  font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:300;
+  padding:14px 0;
+  min-width:0;
+}
+.waitlist-input-group input::placeholder{color:rgba(216,224,240,.3)}
+.waitlist-input-group button{
+  background:none;border:none;
+  color:#0FD4C0;
+  font-family:'DM Sans',sans-serif;
+  font-size:.78rem;font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:14px 0 14px 24px;
+  white-space:nowrap;
+  transition:letter-spacing .3s;
+}
+.waitlist-input-group button:hover{letter-spacing:.15em}
+.hero-demo-link{
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:.82rem;font-weight:400;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(216,224,240,.4);
+  background:none;border:none;
+  transition:color .3s,gap .3s;
+}
+.hero-demo-link:hover{color:#E8F0FF;gap:16px}
+.hero-demo-link .arr{transition:transform .3s}
+.hero-demo-link:hover .arr{transform:translateX(4px)}
+.succ-msg{
+  display:none;align-items:center;gap:10px;
+  color:#0FD4C0;font-size:.85rem;font-weight:300;
+  letter-spacing:.05em;padding:14px 0;
+}
+.succ-msg.show{display:flex}
+.succ-msg::before{content:'✓';font-size:1rem}
+
+/* ─── HERO VISUAL RIGHT ────────────────────────── */
+.hero-right{position:relative;height:520px}
+.orb-wrap{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:340px;height:340px;
+  animation:float 7s ease-in-out infinite;
+}
+@keyframes float{0%,100%{transform:translate(-50%,-50%) translateY(0)}50%{transform:translate(-50%,-50%) translateY(-20px)}}
+.orb-core{
+  width:100%;height:100%;border-radius:50%;
+  background:conic-gradient(from 220deg,#0FD4C0 0%,#0284C7 20%,#7C3AED 40%,#FF5B2E 60%,#0FD4C0 80%,#0FD4C0 100%);
+  filter:blur(1px);
+  animation:spin 12s linear infinite;
+  opacity:.85;
+}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.orb-inner{
+  position:absolute;inset:16px;border-radius:50%;
+  background:radial-gradient(circle at 38% 35%,rgba(255,255,255,.12) 0%,rgba(15,212,192,.15) 35%,rgba(6,10,18,.95) 65%);
+  backdrop-filter:blur(20px);
+}
+.orb-ring-a{
+  position:absolute;inset:-20px;border-radius:50%;
+  border:1px solid rgba(15,212,192,.2);
+  animation:ra 14s linear infinite;
+}
+.orb-ring-b{
+  position:absolute;inset:-50px;border-radius:50%;
+  border:1px dashed rgba(255,91,46,.12);
+  animation:rb 22s linear infinite reverse;
+}
+@keyframes ra{from{transform:rotate(0) rotateX(72deg)}to{transform:rotate(360deg) rotateX(72deg)}}
+@keyframes rb{from{transform:rotate(0) rotateY(72deg)}to{transform:rotate(360deg) rotateY(72deg)}}
+/* Floating data chips — NO pills, use thin-border rectangles */
+.data-chip{
+  position:absolute;
+  background:rgba(6,10,18,.88);
+  border:1px solid rgba(255,255,255,.1);
+  padding:16px 20px;
+  backdrop-filter:blur(20px);
+}
+.dc1{top:40px;right:0;animation:dc1f 5s ease-in-out infinite}
+.dc2{bottom:80px;left:-20px;animation:dc2f 6.5s ease-in-out infinite}
+.dc3{bottom:20px;right:40px;animation:dc3f 4.5s ease-in-out infinite}
+@keyframes dc1f{0%,100%{transform:translateY(0) rotate(-.5deg)}50%{transform:translateY(-12px) rotate(.5deg)}}
+@keyframes dc2f{0%,100%{transform:translateY(0) rotate(.5deg)}50%{transform:translateY(-16px) rotate(-.5deg)}}
+@keyframes dc3f{0%,100%{transform:translateY(0) rotate(-.3deg)}50%{transform:translateY(-9px) rotate(.3deg)}}
+.dc-label{font-size:.65rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:rgba(216,224,240,.35);margin-bottom:5px}
+.dc-value{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.3rem;color:#0FD4C0;line-height:1}
+.dc-value.orange{color:#FF5B2E}
+.dc-sub{font-size:.7rem;color:rgba(216,224,240,.35);margin-top:3px}
+.dc-product{display:flex;align-items:center;gap:10px}
+.dc-icon{font-size:1.2rem}
+.dc-product-text .dc-value{font-size:1rem;color:#E8F0FF}
+
+/* ─── TRUTH SECTION (Stats) ────────────────────── */
+.truth{padding:100px 56px;border-top:1px solid rgba(255,255,255,.05)}
+.truth-inner{max-width:1180px;margin:0 auto}
+.section-marker{
+  font-size:.68rem;font-weight:500;letter-spacing:.2em;
+  text-transform:uppercase;color:#0FD4C0;
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:64px;
+}
+.section-marker::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(15,212,192,.3),transparent)}
+.truth-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:0;
+}
+.truth-item{
+  padding:48px 40px;
+  border-right:1px solid rgba(255,255,255,.06);
+  position:relative;
+}
+.truth-item:last-child{border-right:none}
+.truth-number{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;
+  font-size:clamp(4rem,7vw,6rem);
+  line-height:.9;
+  color:#E8F0FF;
+  letter-spacing:-.03em;
+  margin-bottom:20px;
+  display:block;
+}
+.truth-number .unit{font-size:.45em;color:#0FD4C0;vertical-align:super;font-weight:400}
+.truth-number.orange{color:#FF5B2E}
+.truth-desc{
+  font-size:.92rem;font-weight:300;
+  color:rgba(216,224,240,.55);
+  line-height:1.7;max-width:240px;
+}
+.truth-source{
+  font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(216,224,240,.2);margin-top:12px;
+}
+
+/* ─── HOW IT WORKS ─────────────────────────────── */
+.how{padding:100px 56px}
+.how-inner{max-width:1180px;margin:0 auto}
+.how h2{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;
+  font-size:clamp(2.8rem,4.5vw,4rem);
+  color:#E8F0FF;line-height:1.1;
+  letter-spacing:-.01em;
+  margin-bottom:80px;
+  max-width:560px;
+}
+.how h2 em{font-weight:600;font-style:italic;color:#0FD4C0}
+.steps{display:flex;flex-direction:column;gap:0}
+.step{
+  display:grid;grid-template-columns:80px 1fr;
+  gap:40px;
+  padding:48px 0;
+  border-top:1px solid rgba(255,255,255,.06);
+  align-items:start;
+  transition:background .3s;
+}
+.step:last-child{border-bottom:1px solid rgba(255,255,255,.06)}
+.step-num{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:1rem;
+  color:rgba(216,224,240,.2);
+  letter-spacing:.1em;
+  padding-top:4px;
+}
+.step-body{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
+.step-title{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;font-size:1.8rem;
+  color:#E8F0FF;letter-spacing:-.01em;
+  line-height:1.15;
+}
+.step-title em{font-style:italic;color:#0FD4C0}
+.step-desc{
+  font-size:.9rem;font-weight:300;
+  color:rgba(216,224,240,.55);line-height:1.8;
+  padding-top:4px;
+}
+
+/* ─── TARGET MARKET ────────────────────────────── */
+.market{
+  padding:100px 56px;
+  background:rgba(255,255,255,.018);
+  border-top:1px solid rgba(255,255,255,.05);
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.market-inner{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:start}
+.market-left h2{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:clamp(2.8rem,4vw,3.8rem);
+  color:#E8F0FF;line-height:1.1;letter-spacing:-.01em;
+  margin-bottom:32px;
+}
+.market-left h2 em{font-weight:600;font-style:italic;color:#FF5B2E}
+.market-left p{
+  font-size:.92rem;font-weight:300;
+  color:rgba(216,224,240,.55);line-height:1.8;
+  margin-bottom:48px;
+}
+.market-numbers{display:flex;flex-direction:column;gap:24px}
+.mn-row{
+  display:flex;align-items:baseline;gap:16px;
+  padding-bottom:24px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.mn-row:last-child{border-bottom:none;padding-bottom:0}
+.mn-val{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:2.8rem;
+  color:#0FD4C0;letter-spacing:-.03em;line-height:1;
+  min-width:100px;
+}
+.mn-val.orange{color:#FF5B2E}
+.mn-desc{
+  font-size:.85rem;font-weight:300;
+  color:rgba(216,224,240,.5);line-height:1.6;
+}
+.market-right{padding-top:12px}
+.persona-list{display:flex;flex-direction:column;gap:0}
+.persona-item{
+  padding:32px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:grid;grid-template-columns:48px 1fr;gap:20px;
+  align-items:start;
+  transition:all .3s;
+}
+.persona-item:first-child{border-top:1px solid rgba(255,255,255,.06)}
+.persona-item:hover .persona-name{color:#0FD4C0}
+.persona-emoji{font-size:1.4rem;padding-top:4px;opacity:.7}
+.persona-name{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;font-size:1.25rem;
+  color:#E8F0FF;margin-bottom:6px;
+  transition:color .3s;
+}
+.persona-desc{
+  font-size:.84rem;font-weight:300;
+  color:rgba(216,224,240,.45);line-height:1.7;
+}
+
+/* ─── COMPARISON ───────────────────────────────── */
+.comparison{padding:100px 56px}
+.comparison-inner{max-width:1180px;margin:0 auto}
+.comparison h2{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:clamp(2.5rem,4vw,3.5rem);
+  color:#E8F0FF;letter-spacing:-.01em;margin-bottom:12px;
+}
+.comparison h2 em{font-weight:600;font-style:italic;color:#0FD4C0}
+.comparison-sub{
+  font-size:.9rem;font-weight:300;
+  color:rgba(216,224,240,.45);margin-bottom:56px;
+}
+.comp-table{width:100%;border-collapse:collapse}
+.comp-table thead th{
+  font-size:.68rem;font-weight:500;letter-spacing:.15em;
+  text-transform:uppercase;color:rgba(216,224,240,.3);
+  text-align:center;padding:16px 20px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.comp-table thead th:first-child{text-align:left}
+.comp-table tbody td{
+  padding:20px;text-align:center;
+  font-size:.88rem;font-weight:300;color:rgba(216,224,240,.4);
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+.comp-table tbody td:first-child{text-align:left}
+.comp-table tbody tr.juvo-row{background:rgba(15,212,192,.04)}
+.comp-table tbody tr.juvo-row td{color:#E8F0FF}
+.juvo-label{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;font-size:1.1rem;color:#0FD4C0;
+}
+.chk{color:#0FD4C0;font-size:1rem}
+.crs{color:rgba(216,224,240,.18);font-size:1rem}
+.cpart{color:#FF5B2E;font-size:1rem}
+
+/* ─── WAITLIST BOTTOM ──────────────────────────── */
+.wl-cta{
+  padding:120px 56px;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+.wl-cta::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 70% at 50% 50%,rgba(15,212,192,.06) 0%,transparent 65%);
+}
+.wl-cta-inner{max-width:640px;margin:0 auto;position:relative;z-index:1}
+.wl-cta h2{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;
+  font-size:clamp(2.8rem,5vw,4.5rem);
+  color:#E8F0FF;letter-spacing:-.02em;line-height:1.05;
+  margin-bottom:20px;
+}
+.wl-cta h2 em{font-weight:600;font-style:italic;color:#0FD4C0}
+.wl-cta p{
+  font-size:.95rem;font-weight:300;
+  color:rgba(216,224,240,.5);margin-bottom:48px;line-height:1.7;
+}
+.wl-cta .waitlist-input-group{margin:0 auto;max-width:460px}
+.wl-note{
+  font-size:.7rem;font-weight:400;letter-spacing:.08em;
+  text-transform:uppercase;color:rgba(216,224,240,.2);
+  margin-top:20px;
+}
+
+/* ─── FOOTER ───────────────────────────────────── */
+footer{
+  padding:64px 56px 40px;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.foot-wrap{max-width:1180px;margin:0 auto}
+.foot-grid{
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;
+  gap:60px;margin-bottom:56px;
+}
+.foot-brand-name{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;font-size:1.5rem;
+  letter-spacing:.04em;color:#E8F0FF;
+  margin-bottom:12px;
+}
+.foot-brand-name em{color:#0FD4C0;font-style:normal}
+.foot-brand-desc{
+  font-size:.82rem;font-weight:300;
+  color:rgba(216,224,240,.35);line-height:1.7;max-width:220px;
+}
+.foot-col-title{
+  font-size:.65rem;font-weight:500;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(216,224,240,.3);margin-bottom:20px;
+}
+.foot-links{list-style:none;display:flex;flex-direction:column;gap:11px}
+.foot-links li button,.foot-links li a{
+  background:none;border:none;
+  font-family:'DM Sans',sans-serif;
+  font-size:.82rem;font-weight:300;
+  color:rgba(216,224,240,.38);
+  transition:color .3s;display:block;
+}
+.foot-links li button:hover,.foot-links li a:hover{color:#E8F0FF}
+.foot-bottom{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:24px;border-top:1px solid rgba(255,255,255,.05);
+}
+.foot-copy{font-size:.75rem;font-weight:300;color:rgba(216,224,240,.2);letter-spacing:.04em}
+.foot-legal{display:flex;gap:24px}
+.foot-legal a{font-size:.72rem;color:rgba(216,224,240,.2);transition:color .3s;letter-spacing:.04em}
+.foot-legal a:hover{color:rgba(216,224,240,.5)}
+
+/* ─── INVESTORS ────────────────────────────────── */
+.inv-hero{
+  padding:140px 56px 80px;
+  position:relative;overflow:hidden;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.inv-hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 50% 60% at 60% 30%,rgba(15,212,192,.07) 0%,transparent 60%);
+}
+.inv-hero-inner{max-width:1180px;margin:0 auto;position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:end}
+.inv-hero h1{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:clamp(3rem,5.5vw,5rem);
+  color:#E8F0FF;letter-spacing:-.02em;line-height:1.05;
+}
+.inv-hero h1 em{font-weight:600;font-style:italic;color:#0FD4C0}
+.inv-hero-right p{
+  font-size:.95rem;font-weight:300;
+  color:rgba(216,224,240,.5);line-height:1.8;
+}
+
+/* Executive Summary */
+.exec-sec{padding:80px 56px}
+.exec-inner{max-width:1180px;margin:0 auto}
+
+/* Exact match to the doc's header KPI row */
+.doc-kpi-row{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border:1px solid rgba(255,255,255,.07);
+  margin-bottom:72px;
+}
+.doc-kpi{
+  padding:36px 28px;
+  border-right:1px solid rgba(255,255,255,.07);
+  text-align:center;
+}
+.doc-kpi:last-child{border-right:none}
+.doc-kpi-num{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:2.6rem;
+  color:#0FD4C0;letter-spacing:-.02em;
+  line-height:1;margin-bottom:8px;
+  display:block;
+}
+.doc-kpi-num.orange{color:#FF5B2E}
+.doc-kpi-desc{
+  font-size:.78rem;font-weight:300;
+  color:rgba(216,224,240,.4);line-height:1.5;
+}
+
+/* Section headings to match doc style */
+.doc-section{margin-bottom:60px}
+.doc-section-label{
+  font-size:.68rem;font-weight:500;letter-spacing:.2em;
+  text-transform:uppercase;color:#0FD4C0;
+  margin-bottom:20px;
+  display:flex;align-items:center;gap:14px;
+}
+.doc-section-label::before{content:'';width:24px;height:1px;background:#0FD4C0}
+.doc-section h3{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:clamp(1.8rem,3vw,2.6rem);
+  color:#E8F0FF;letter-spacing:-.01em;line-height:1.1;
+  margin-bottom:24px;
+}
+.doc-section h3 em{font-weight:600;font-style:italic;color:#0FD4C0}
+.doc-section p{
+  font-size:.92rem;font-weight:300;
+  color:rgba(216,224,240,.55);line-height:1.85;
+  margin-bottom:16px;max-width:740px;
+}
+.doc-section p:last-child{margin-bottom:0}
+.doc-two-col{display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-bottom:60px}
+.doc-bullets{
+  list-style:none;margin-top:16px;
+  display:flex;flex-direction:column;gap:0;
+}
+.doc-bullets li{
+  font-size:.9rem;font-weight:300;
+  color:rgba(216,224,240,.5);
+  padding:12px 0;padding-left:20px;position:relative;
+  border-bottom:1px solid rgba(255,255,255,.04);line-height:1.6;
+}
+.doc-bullets li:last-child{border-bottom:none}
+.doc-bullets li::before{
+  content:'—';position:absolute;left:0;
+  color:#0FD4C0;font-size:.7rem;top:15px;
+}
+/* Competitive advantage side-by-side */
+.comp-advantage{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:0;border:1px solid rgba(255,255,255,.07);
+  margin-bottom:60px;
+}
+.ca-left{
+  padding:40px;
+  border-right:1px solid rgba(255,255,255,.07);
+}
+.ca-right{padding:40px}
+.ca-title{
+  font-size:.65rem;font-weight:500;letter-spacing:.18em;
+  text-transform:uppercase;color:rgba(216,224,240,.3);
+  margin-bottom:20px;
+}
+.ca-text{
+  font-size:.88rem;font-weight:300;
+  color:rgba(216,224,240,.5);line-height:1.8;
+  margin-bottom:16px;
+}
+/* Market size visual */
+.market-size-row{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:0;border:1px solid rgba(255,255,255,.07);
+  margin:24px 0;
+}
+.ms-cell{
+  padding:28px 24px;text-align:center;
+  border-right:1px solid rgba(255,255,255,.07);
+}
+.ms-cell:last-child{border-right:none}
+.ms-num{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:2rem;
+  color:#0FD4C0;letter-spacing:-.02em;
+  margin-bottom:6px;
+}
+.ms-num.orange{color:#FF5B2E}
+.ms-label{font-size:.72rem;font-weight:300;color:rgba(216,224,240,.35);line-height:1.4}
+
+/* Revenue flow */
+.rev-flow{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:0;border:1px solid rgba(255,255,255,.07);
+  margin:24px 0;
+}
+.rf-step{
+  padding:28px 20px;text-align:center;
+  border-right:1px solid rgba(255,255,255,.07);
+  position:relative;
+}
+.rf-step:last-child{border-right:none}
+.rf-step::after{
+  content:'→';
+  position:absolute;right:-10px;top:50%;
+  transform:translateY(-50%);
+  color:rgba(216,224,240,.15);font-size:.9rem;
+}
+.rf-step:last-child::after{display:none}
+.rf-icon{font-size:1.3rem;margin-bottom:8px;opacity:.7}
+.rf-text{font-size:.78rem;font-weight:300;color:rgba(216,224,240,.4);line-height:1.4}
+.rev-callout{
+  background:rgba(15,212,192,.04);
+  border-left:2px solid #0FD4C0;
+  padding:24px 28px;margin-top:8px;
+}
+.rev-callout p{
+  font-size:.9rem;font-weight:300;
+  color:rgba(216,224,240,.55);line-height:1.8;
+  margin:0;max-width:100%;
+}
+.rev-callout strong{color:#0FD4C0;font-weight:400}
+
+/* ─── PITCH DECK ───────────────────────────────── */
+.pitch-sec{
+  padding:80px 56px 100px;
+  border-top:1px solid rgba(255,255,255,.05);
+}
+.pitch-inner{max-width:1180px;margin:0 auto}
+.pitch-intro-row{
+  display:flex;align-items:baseline;justify-content:space-between;
+  margin-bottom:56px;
+}
+.pitch-intro-row h2{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:clamp(2rem,3.5vw,3rem);
+  color:#E8F0FF;letter-spacing:-.01em;
+}
+.pitch-intro-row h2 em{font-weight:600;font-style:italic;color:#0FD4C0}
+.pitch-intro-row p{
+  font-size:.82rem;font-weight:300;
+  color:rgba(216,224,240,.35);max-width:280px;
+  text-align:right;line-height:1.6;
+}
+.slides-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.06)}
+.slide-card{
+  background:#060A12;
+  padding:0;overflow:hidden;
+  transition:background .3s;
+}
+.slide-card:hover{background:#090E1A}
+.slide-top{
+  padding:20px 28px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.slide-n{
+  font-size:.65rem;font-weight:500;letter-spacing:.15em;
+  text-transform:uppercase;color:rgba(216,224,240,.2);
+}
+.slide-name{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;font-size:1rem;color:#E8F0FF;
+}
+.slide-body{padding:28px}
+.slide-body p{
+  font-size:.84rem;font-weight:300;
+  color:rgba(216,224,240,.48);line-height:1.7;
+  margin-bottom:16px;
+}
+.slide-body p:last-child{margin-bottom:0}
+/* Slide stats inline */
+.s-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:16px;margin:16px 0;
+}
+.s-stat strong{
+  display:block;
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:2rem;
+  color:#0FD4C0;letter-spacing:-.02em;line-height:1;
+  margin-bottom:4px;
+}
+.s-stat span{font-size:.72rem;color:rgba(216,224,240,.3);letter-spacing:.05em}
+.s-features{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.sf{display:flex;gap:14px;align-items:flex-start}
+.sf-icon{font-size:1rem;padding-top:2px;opacity:.7;flex-shrink:0}
+.sf h4{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;font-size:.95rem;color:#E8F0FF;margin-bottom:1px;
+}
+.sf p{font-size:.76rem;color:rgba(216,224,240,.38);margin:0;line-height:1.5}
+.s-table{width:100%;border-collapse:collapse;margin-top:12px}
+.s-table th{
+  font-size:.62rem;letter-spacing:.13em;text-transform:uppercase;
+  color:rgba(216,224,240,.25);padding:7px 10px;
+  text-align:center;border-bottom:1px solid rgba(255,255,255,.05);
+}
+.s-table th:first-child{text-align:left}
+.s-table td{
+  padding:9px 10px;text-align:center;
+  font-size:.8rem;color:rgba(216,224,240,.38);
+  border-bottom:1px solid rgba(255,255,255,.03);
+}
+.s-table td:first-child{text-align:left}
+.s-table tr.jrow{background:rgba(15,212,192,.04)}
+.s-table tr.jrow td{color:#E8F0FF}
+.sch{color:#0FD4C0}.scx{color:rgba(216,224,240,.18)}.scp{color:#FF5B2E}
+.jlabel{font-family:'Cormorant Garamond',serif;font-weight:600;color:#0FD4C0!important;font-size:.95rem}
+.s-phases{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.s-phase{
+  padding:14px 16px;
+  border-left:2px solid #0FD4C0;
+  padding-left:16px;background:rgba(15,212,192,.03);
+}
+.s-phase.p2{border-left-color:rgba(15,212,192,.4);background:rgba(15,212,192,.015)}
+.s-phase.p3{border-left-color:rgba(15,212,192,.18);background:rgba(15,212,192,.008)}
+.s-phase span{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:#0FD4C0;opacity:.7}
+.s-phase h4{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:.95rem;color:#E8F0FF;margin:3px 0}
+.s-phase p{font-size:.75rem;color:rgba(216,224,240,.35);margin:4px 0 0;line-height:1.5}
+.s-tech{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.s-tech-row{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;background:rgba(255,255,255,.025);
+}
+.s-tech-row .icon{font-size:1rem;opacity:.7}
+.s-tech-row h4{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:.9rem;color:#E8F0FF;margin-bottom:1px}
+.s-tech-row p{font-size:.73rem;color:rgba(216,224,240,.35);margin:0}
+.s-mkt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.smg-box{
+  padding:14px;text-align:center;
+  background:rgba(15,212,192,.04);
+  border:1px solid rgba(15,212,192,.1);
+}
+.smg-box .icon{font-size:1.2rem;margin-bottom:5px}
+.smg-box h4{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:.88rem;color:#E8F0FF;margin-bottom:2px}
+.smg-box p{font-size:.7rem;color:rgba(216,224,240,.35);margin:0}
+.s-rev-row{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.s-rev-chip{
+  flex:1;min-width:90px;padding:12px;text-align:center;
+  background:rgba(255,255,255,.025);
+}
+.s-rev-chip .icon{font-size:.9rem;margin-bottom:3px;opacity:.7}
+.s-rev-chip p{font-size:.7rem;color:rgba(216,224,240,.35);margin:0;line-height:1.3}
+.s-highlight{
+  background:rgba(15,212,192,.05);
+  border-left:2px solid #0FD4C0;
+  padding:16px 18px;margin-top:8px;
+}
+.s-highlight strong{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.5rem;color:#0FD4C0;display:block;margin-bottom:4px}
+.s-highlight p{font-size:.75rem;color:rgba(216,224,240,.4);margin:0;line-height:1.5}
+/* Full-width closing slide */
+.slide-full{grid-column:1/-1;background:#060A12;padding:0;border-top:1px solid rgba(255,255,255,.06)}
+.slide-full:hover{background:#090E1A}
+.slide-closing-body{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:80px;padding:56px;align-items:center;
+}
+.closing-left h2{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:clamp(2.2rem,4vw,3.5rem);
+  color:#E8F0FF;letter-spacing:-.02em;line-height:1.05;
+  margin-bottom:16px;
+}
+.closing-left h2 em{font-weight:600;font-style:italic;color:#0FD4C0}
+.closing-left p{font-size:.9rem;font-weight:300;color:rgba(216,224,240,.45);line-height:1.75}
+.closing-right{text-align:center}
+.closing-right .logo-big{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:5rem;
+  color:rgba(216,224,240,.08);letter-spacing:.1em;
+  margin-bottom:24px;
+}
+.closing-right a{
+  display:inline-flex;align-items:center;gap:10px;
+  background:#0FD4C0;color:#060A12;
+  font-family:'DM Sans',sans-serif;
+  font-size:.8rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;
+  padding:16px 36px;
+  transition:all .3s;
+}
+.closing-right a:hover{background:#0aada0;transform:translateY(-2px)}
+
+/* ─── DEMO PAGE ────────────────────────────────── */
+.demo-hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:flex-start;justify-content:center;
+  padding:120px 56px 80px;
+  position:relative;overflow:hidden;
+}
+.demo-hero::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 40% 60% at 80% 40%,rgba(15,212,192,.06) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 40% at 10% 70%,rgba(255,91,46,.04) 0%,transparent 50%);
+}
+.demo-hero-inner{max-width:1180px;margin:0 auto;width:100%;position:relative;z-index:1}
+.demo-hero h1{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:clamp(3.5rem,7vw,6rem);
+  color:#E8F0FF;letter-spacing:-.02em;line-height:1.02;
+  margin-bottom:28px;max-width:800px;
+}
+.demo-hero h1 em{font-weight:600;font-style:italic;color:#0FD4C0}
+.demo-hero-sub{
+  font-size:1.05rem;font-weight:300;
+  color:rgba(216,224,240,.5);line-height:1.8;
+  max-width:520px;margin-bottom:48px;
+}
+.demo-link-btn{
+  display:inline-flex;align-items:center;gap:14px;
+  background:none;border:1px solid rgba(255,255,255,.15);
+  color:#E8F0FF;
+  font-family:'DM Sans',sans-serif;
+  font-size:.82rem;font-weight:400;letter-spacing:.1em;text-transform:uppercase;
+  padding:16px 32px;
+  transition:all .35s;
+  text-decoration:none;
+}
+.demo-link-btn:hover{
+  border-color:#0FD4C0;color:#0FD4C0;
+  background:rgba(15,212,192,.04);
+  gap:20px;
+}
+/* Steps — horizontal numbered list */
+.demo-steps{
+  padding:80px 56px;
+  border-top:1px solid rgba(255,255,255,.05);
+}
+.demo-steps-inner{max-width:1180px;margin:0 auto}
+.demo-steps h2{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:clamp(2.5rem,4vw,3.5rem);
+  color:#E8F0FF;letter-spacing:-.01em;margin-bottom:64px;
+}
+.demo-steps h2 em{font-weight:600;font-style:italic;color:#0FD4C0}
+.step-list{display:flex;flex-direction:column}
+.step-row{
+  display:grid;grid-template-columns:80px 1fr 1fr;
+  gap:40px;padding:40px 0;
+  border-top:1px solid rgba(255,255,255,.05);
+  align-items:start;
+}
+.step-row:last-child{border-bottom:1px solid rgba(255,255,255,.05)}
+.srow-num{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:1rem;color:rgba(216,224,240,.18);
+  letter-spacing:.1em;padding-top:4px;
+}
+.srow-title{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;font-size:1.6rem;
+  color:#E8F0FF;letter-spacing:-.01em;line-height:1.2;
+}
+.srow-title em{font-style:italic;color:#0FD4C0}
+.srow-desc{
+  font-size:.88rem;font-weight:300;
+  color:rgba(216,224,240,.45);line-height:1.8;
+  padding-top:6px;
+}
+/* Features grid */
+.demo-feats{
+  padding:80px 56px 100px;
+  background:rgba(255,255,255,.016);
+  border-top:1px solid rgba(255,255,255,.05);
+}
+.demo-feats-inner{max-width:1180px;margin:0 auto}
+.demo-feats h2{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:clamp(2.5rem,4vw,3.5rem);
+  color:#E8F0FF;letter-spacing:-.01em;margin-bottom:64px;
+}
+.demo-feats h2 em{font-weight:600;font-style:italic;color:#0FD4C0}
+.feat-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:0;border:1px solid rgba(255,255,255,.06);
+}
+.feat-item{
+  padding:48px 40px;
+  border-right:1px solid rgba(255,255,255,.06);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  transition:background .3s;
+}
+.feat-item:hover{background:rgba(255,255,255,.02)}
+.feat-item:nth-child(2n){border-right:none}
+.feat-item:nth-child(3),.feat-item:nth-child(4){border-bottom:none}
+.feat-icon{font-size:1.8rem;margin-bottom:20px;opacity:.8}
+.feat-item h3{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;font-size:1.5rem;
+  color:#E8F0FF;margin-bottom:14px;letter-spacing:-.01em;
+}
+.feat-item p{
+  font-size:.88rem;font-weight:300;
+  color:rgba(216,224,240,.45);line-height:1.8;
+  margin-bottom:20px;
+}
+.feat-tech{display:flex;flex-wrap:wrap;gap:8px}
+.feat-tech span{
+  font-size:.68rem;font-weight:400;letter-spacing:.1em;
+  text-transform:uppercase;color:rgba(15,212,192,.6);
+  border-bottom:1px solid rgba(15,212,192,.2);
+  padding-bottom:1px;
+}
+.demo-cta{
+  padding:100px 56px;text-align:center;
+  border-top:1px solid rgba(255,255,255,.05);
+}
+.demo-cta h2{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;font-size:clamp(2.5rem,4.5vw,4rem);
+  color:#E8F0FF;letter-spacing:-.02em;margin-bottom:16px;
+}
+.demo-cta h2 em{font-weight:600;font-style:italic;color:#FF5B2E}
+.demo-cta p{font-size:.9rem;font-weight:300;color:rgba(216,224,240,.4);margin-bottom:36px}
+
+/* ─── REVEAL ANIMATIONS ────────────────────────── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.4,0,.2,1),transform .7s cubic-bezier(.4,0,.2,1)}
+.reveal.in{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+
+/* ─── RESPONSIVE ───────────────────────────────── */
+@media(max-width:1024px){
+  nav{padding:0 24px}
+  .hero,.inv-hero,.exec-sec,.pitch-sec,.demo-hero,.demo-steps,.demo-feats,.demo-cta,.truth,.how,.market,.comparison,.wl-cta{padding-left:24px;padding-right:24px}
+  footer{padding:48px 24px 32px}
+  .hero-inner,.inv-hero-inner,.market-inner{grid-template-columns:1fr;gap:48px}
+  .hero-right{height:360px}
+  .orb-wrap{width:260px;height:260px}
+  .truth-grid,.doc-two-col,.comp-advantage,.feat-grid,.step-body,.slide-closing-body{grid-template-columns:1fr}
+  .truth-item{border-right:none;border-bottom:1px solid rgba(255,255,255,.06);padding:36px 0}
+  .truth-item:last-child{border-bottom:none}
+  .step-body{gap:16px}
+  .doc-kpi-row,.market-size-row,.rev-flow{grid-template-columns:1fr 1fr}
+  .doc-kpi:nth-child(2n){border-right:none}
+  .ms-cell:nth-child(2n){border-right:none}
+  .rf-step:nth-child(2n){border-right:none}
+  .doc-kpi:nth-child(n+3){border-top:1px solid rgba(255,255,255,.07)}
+  .ms-cell:nth-child(n+3){border-top:1px solid rgba(255,255,255,.07)}
+  .rf-step:nth-child(n+3){border-top:1px solid rgba(255,255,255,.07)}
+  .comp-advantage{border:1px solid rgba(255,255,255,.07)}
+  .ca-left{border-right:none;border-bottom:1px solid rgba(255,255,255,.07)}
+  .slides-wrap{grid-template-columns:1fr}
+  .slide-full{grid-column:auto}
+  .slide-closing-body{grid-template-columns:1fr;gap:40px;padding:40px}
+  .step-row{grid-template-columns:60px 1fr}
+  .srow-desc{grid-column:2/-1}
+  .foot-grid{grid-template-columns:1fr 1fr;gap:32px}
+  .how-steps .step-body,.step-body{grid-template-columns:1fr}
+  .feat-item:nth-child(3){border-bottom:1px solid rgba(255,255,255,.06)}
+  .feat-item:nth-child(4){border-bottom:none}
+  .pitch-intro-row{flex-direction:column;gap:12px}
+  .pitch-intro-row p{text-align:left;max-width:100%}
+}
+@media(max-width:640px){
+  .hero-right{display:none}
+  .nav-links li:nth-child(4){display:none}
+  .foot-grid{grid-template-columns:1fr}
+  .doc-kpi-row,.market-size-row,.rev-flow{grid-template-columns:1fr}
+  .doc-kpi,.ms-cell,.rf-step{border-right:none;border-bottom:1px solid rgba(255,255,255,.07)}
+  .s-stats{grid-template-columns:repeat(3,1fr)}
+  .feat-grid{grid-template-columns:1fr}
+  .feat-item{border-right:none}
+  .feat-item:nth-child(3){border-bottom:1px solid rgba(255,255,255,.06)}
+}
+</style>
+</head>
+<body>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- ═══ NAV ═══════════════════════════════════════ -->
+<nav id="nav">
+  <div class="nav-logo" onclick="go('home')">JU<em>V</em>O</div>
+  <ul class="nav-links">
+    <li><button class="nbtn active" data-p="home" onclick="go('home')">Home</button></li>
+    <li><button class="nbtn" data-p="demo" onclick="go('demo')">Demo</button></li>
+    <li><button class="nbtn" data-p="investors" onclick="go('investors')">Investors</button></li>
+    <li><button class="nav-join" onclick="go('home');setTimeout(()=>document.getElementById('wl').scrollIntoView({behavior:'smooth'}),200)">Join Waitlist</button></li>
+  </ul>
+</nav>
+
+<!-- ═══════════════════════════════════════════════
+     HOME PAGE
+════════════════════════════════════════════════════ -->
+<div class="page active" id="pg-home">
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-eyebrow">Now accepting early access</div>
+      <h1>
+        Stop <strong>searching.</strong><br>
+        Start shopping<br>
+        <span class="orange">smarter.</span>
+      </h1>
+      <p class="hero-body">
+        You open your laptop. You need headphones. Two hours later — 17 tabs, still nothing in the cart. <strong>JUVO ends that.</strong> One AI-powered answer. The best product, the best price, built around you.
+      </p>
+      <div class="waitlist-wrap">
+        <div id="hf" class="waitlist-input-group">
+          <input id="hem" type="email" placeholder="Enter your email address" autocomplete="email"/>
+          <button onclick="signup('hem','hs','hf')">Get early access →</button>
+        </div>
+        <div id="hs" class="succ-msg">You're on the list. We'll be in touch soon.</div>
+      </div>
+      <button class="hero-demo-link" onclick="window.open('https://juvoapp.base44.app','_blank')">
+        View live demo <span class="arr">→</span>
+      </button>
+    </div>
+
+    <div class="hero-right">
+      <div class="orb-wrap">
+        <div class="orb-core"></div>
+        <div class="orb-inner"></div>
+        <div class="orb-ring-a"></div>
+        <div class="orb-ring-b"></div>
+      </div>
+      <div class="data-chip dc1">
+        <div class="dc-label">Best match found</div>
+        <div class="dc-product">
+          <span class="dc-icon">🎧</span>
+          <div class="dc-product-text">
+            <div class="dc-value">Sony WH-1000XM5</div>
+            <div class="dc-sub">Quality Score: 97 / 100</div>
+          </div>
+        </div>
+      </div>
+      <div class="data-chip dc2">
+        <div class="dc-label">Price saved</div>
+        <div class="dc-value orange">$47.00</div>
+        <div class="dc-sub">vs. avg retail price</div>
+      </div>
+      <div class="data-chip dc3">
+        <div class="dc-label">Decision time</div>
+        <div class="dc-value">3 sec</div>
+        <div class="dc-sub">vs. 2hr avg</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="truth">
+  <div class="truth-inner">
+    <div class="section-marker">The reality of online shopping</div>
+    <div class="truth-grid">
+      <div class="truth-item reveal">
+        <span class="truth-number"><span class="unit">  </span>54<span class="unit">%</span></span>
+        <p class="truth-desc">of American shoppers feel overwhelmed by the volume of product choices they face online</p>
+        <p class="truth-source">Accenture, 2023</p>
+      </div>
+      <div class="truth-item reveal d1">
+        <span class="truth-number orange">91<span class="unit">%</span></span>
+        <p class="truth-desc">have abandoned a purchase entirely due to indecision — leaving real value behind</p>
+        <p class="truth-source">Accenture, 2023</p>
+      </div>
+      <div class="truth-item reveal d2">
+        <span class="truth-number">$1.3<span class="unit">T</span></span>
+        <p class="truth-desc">lost annually in the US to returns and missed value driven by poor purchasing decisions</p>
+        <p class="truth-source">McKinsey, 2023</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="how">
+  <div class="how-inner">
+    <h2 class="reveal">From overwhelmed<br>to <em>one confident answer.</em></h2>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">Connect your<br><em>existing accounts</em></div>
+          <div class="step-desc">Link Amazon, Walmart, Target, and more. JUVO reads your purchase history and shopping patterns — building a picture of what actually matters to you, not what advertisers want you to buy.</div>
+        </div>
+      </div>
+      <div class="step reveal d1">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">AI learns<br><em>your preferences</em></div>
+          <div class="step-desc">Our machine learning engine maps what you value — price sensitivity, brand loyalty, quality thresholds. It builds a proprietary preference profile unique to you, and it compounds with every use.</div>
+        </div>
+      </div>
+      <div class="step reveal d2">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">Real-time scan<br><em>across every retailer</em></div>
+          <div class="step-desc">The moment you search, JUVO scans Amazon, Walmart, Target, Best Buy and more simultaneously — checking prices, reviews, return rates, and availability in real time, not cached data.</div>
+        </div>
+      </div>
+      <div class="step reveal d3">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-title">One answer.<br><em>Buy with confidence.</em></div>
+          <div class="step-desc">Not a ranked list. Not a sponsored result. One recommendation — the best product at the best price, with a clear explanation of why it's right for you. Indecision, solved.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="market">
+  <div class="market-inner">
+    <div class="market-left">
+      <div class="section-marker reveal">Who JUVO is for</div>
+      <h2 class="reveal d1">Built for the<br><em>overwhelmed</em><br>American consumer.</h2>
+      <p class="reveal d2">Today's platforms are built to serve merchants and advertisers — not you. JUVO is the first platform that puts the shopper first, with an initial focus on those facing the highest purchase volume and financial stakes.</p>
+      <div class="market-numbers reveal d2">
+        <div class="mn-row">
+          <div class="mn-val">228M</div>
+          <div class="mn-desc">digital shoppers in the US — our total addressable market (eMarketer, 2024)</div>
+        </div>
+        <div class="mn-row">
+          <div class="mn-val">123M</div>
+          <div class="mn-desc">experience decision fatigue regularly — our serviceable minimum market</div>
+        </div>
+        <div class="mn-row">
+          <div class="mn-val orange">93%</div>
+          <div class="mn-desc">of surveyed users said they would definitely or probably use JUVO (primary research)</div>
+        </div>
+      </div>
+    </div>
+    <div class="market-right reveal d2">
+      <div class="persona-list">
+        <div class="persona-item">
+          <div class="persona-emoji">🏡</div>
+          <div>
+            <div class="persona-name">New Homeowners</div>
+            <div class="persona-desc">High purchase volume, high financial stakes, limited time to research every appliance, tool, or furnishing. Every bad decision costs real money.</div>
+          </div>
+        </div>
+        <div class="persona-item">
+          <div class="persona-emoji">👨‍👩‍👧</div>
+          <div>
+            <div class="persona-name">Young Families</div>
+            <div class="persona-desc">Budget-conscious and time-poor. Overwhelmed by endless options for everything from car seats to blenders. JUVO removes the noise.</div>
+          </div>
+        </div>
+        <div class="persona-item">
+          <div class="persona-emoji">📱</div>
+          <div>
+            <div class="persona-name">Decision-Fatigued Browsers</div>
+            <div class="persona-desc">Digitally active shoppers who open 10+ tabs before buying yet still feel uncertain. 72% of our survey respondents matched this profile exactly.</div>
+          </div>
+        </div>
+        <div class="persona-item">
+          <div class="persona-emoji">💡</div>
+          <div>
+            <div class="persona-name">Value Seekers</div>
+            <div class="persona-desc">Distrust generic best-seller lists and ad-driven results. 68% say they're willing to adopt tools that remove uncertainty and save time.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="comparison">
+  <div class="comparison-inner">
+    <div class="section-marker reveal">Competitive landscape</div>
+    <h2 class="reveal d1">No one else does<br><em>all four things.</em></h2>
+    <p class="comparison-sub reveal d2">Google Shopping serves ads. Wirecutter publishes editorial picks. Honey finds coupons. None of them learn from your individual behavior.</p>
+    <div class="reveal d2" style="overflow-x:auto">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th style="text-align:left">Platform</th>
+            <th>AI Personalization</th>
+            <th>Price Comparison</th>
+            <th>Quality Score</th>
+            <th>Free to User</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="juvo-row">
+            <td class="juvo-label">JUVO</td>
+            <td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td><td class="chk">✓</td>
+          </tr>
+          <tr><td>Google Shopping</td><td class="crs">✗</td><td class="chk">✓</td><td class="crs">✗</td><td class="chk">✓</td></tr>
+          <tr><td>Wirecutter</td><td class="crs">✗</td><td class="crs">✗</td><td class="chk">✓</td><td class="chk">✓</td></tr>
+          <tr><td>Honey</td><td class="crs">✗</td><td class="chk">✓</td><td class="crs">✗</td><td class="chk">✓</td></tr>
+          <tr><td>Amazon</td><td class="cpart">~</td><td class="chk">✓</td><td class="crs">✗</td><td class="chk">✓</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="wl-cta" id="wl">
+  <div class="wl-cta-inner">
+    <div class="section-marker reveal" style="justify-content:center">Early access</div>
+    <h2 class="reveal d1">Be the first to shop<br><em>smarter.</em></h2>
+    <p class="reveal d2">Join thousands of smart shoppers on the waitlist. Free forever for early members. No credit card, no commitment.</p>
+    <div id="bf" class="waitlist-input-group reveal d3">
+      <input id="bem" type="email" placeholder="your@email.com" autocomplete="email"/>
+      <button onclick="signup('bem','bs','bf')">Join the waitlist →</button>
+    </div>
+    <div id="bs" class="succ-msg reveal d3" style="justify-content:center">You're on the list. We'll be in touch soon.</div>
+    <p class="wl-note reveal d4">No spam. No credit card. Just early access.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand-name">JU<em>V</em>O</div>
+        <p class="foot-brand-desc">Shop Smarter. Decide Faster. One AI-powered recommendation — the best product at the best price, every time.</p>
+      </div>
+      <div>
+        <div class="foot-col-title">Product</div>
+        <ul class="foot-links">
+          <li><button onclick="go('home')">Home</button></li>
+          <li><button onclick="go('demo')">Demo</button></li>
+          <li><button onclick="go('home');setTimeout(()=>document.getElementById('wl').scrollIntoView({behavior:'smooth'}),200)">Join Waitlist</button></li>
+        </ul>
+      </div>
+      <div>
+        <div class="foot-col-title">Company</div>
+        <ul class="foot-links">
+          <li><button onclick="go('investors')">Investors</button></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="foot-col-title">Legal</div>
+        <ul class="foot-links">
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <p class="foot-copy">© 2025 myJUVO LLC. All rights reserved.</p>
+      <div class="foot-legal"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></div>
+    </div>
+  </div>
+</footer>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     DEMO PAGE
+════════════════════════════════════════════════════ -->
+<div class="page" id="pg-demo">
+<section class="demo-hero">
+  <div class="demo-hero-inner">
+    <div class="hero-eyebrow">See it in action</div>
+    <h1>Your personal<br><em>AI shopping</em><br>advisor.</h1>
+    <p class="demo-hero-sub">JUVO isn't a comparison engine. It's not a coupon finder. It's a personalized AI that learns <em>you</em> — your habits, your values, your budget — and delivers one confident answer every time you shop.</p>
+    <a href="https://juvoapp.base44.app" target="_blank" rel="noopener" class="demo-link-btn">Launch live demo →</a>
+  </div>
+</section>
+
+<section class="demo-steps">
+  <div class="demo-steps-inner">
+    <div class="section-marker reveal">The experience</div>
+    <h2 class="reveal d1">From question to <em>confident purchase</em> in seconds.</h2>
+    <div class="step-list">
+      <div class="step-row reveal">
+        <div class="srow-num">01</div>
+        <div class="srow-title">Tell JUVO<br><em>what you need</em></div>
+        <div class="srow-desc">Type a simple search — "noise cancelling headphones under $300" or "best blender for smoothies." No complicated filters, no category drilling, no tab chaos required.</div>
+      </div>
+      <div class="step-row reveal d1">
+        <div class="srow-num">02</div>
+        <div class="srow-title">JUVO scans<br><em>every retailer</em></div>
+        <div class="srow-desc">In real time, JUVO pulls live data from Amazon, Walmart, Target, Best Buy and more — checking prices, availability, reviews, and return policies simultaneously, not from cached snapshots.</div>
+      </div>
+      <div class="step-row reveal d2">
+        <div class="srow-num">03</div>
+        <div class="srow-title">AI matches<br><em>to your profile</em></div>
+        <div class="srow-desc">The JUVO engine cross-references every option against your purchase history, stated preferences, and behavioral patterns — not just specs and star ratings. It knows what you actually value.</div>
+      </div>
+      <div class="step-row reveal d3">
+        <div class="srow-num">04</div>
+        <div class="srow-title">One answer.<br><em>Buy confidently.</em></div>
+        <div class="srow-desc">No more tab paralysis. JUVO surfaces the single best match — with a clear explanation of why it's right for you — and takes you directly to the best available price online.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="demo-feats">
+  <div class="demo-feats-inner">
+    <div class="section-marker reveal">Core technology</div>
+    <h2 class="reveal d1">Powered by <em>4th Industrial<br>Revolution</em> technology.</h2>
+    <div class="feat-grid">
+      <div class="feat-item reveal">
+        <div class="feat-icon">🤖</div>
+        <h3>Personalized AI Recommendations</h3>
+        <p>JUVO's machine learning engine analyzes your complete shopping history and behavioral patterns to understand exactly what matters to you. Unlike static editorial picks or ad-driven results, JUVO's recommendations are uniquely yours — and they get sharper with every purchase.</p>
+        <div class="feat-tech"><span>Machine Learning</span><span>Behavioral AI</span><span>4IR Technology</span></div>
+      </div>
+      <div class="feat-item reveal d1">
+        <div class="feat-icon">💰</div>
+        <h3>Real-Time Cross-Retailer Price Comparison</h3>
+        <p>The moment you search, JUVO scans Amazon, Walmart, Target, Best Buy and a growing network of retailers in real time. You see the lowest available price for your recommended product — without hunting across 10 different tabs or browser extensions.</p>
+        <div class="feat-tech"><span>Live Price APIs</span><span>Multi-Retailer</span><span>Real-Time Data</span></div>
+      </div>
+      <div class="feat-item reveal d2">
+        <div class="feat-icon">⭐</div>
+        <h3>Proprietary Quality Scoring Index</h3>
+        <p>Every product is rated on a price-to-quality index that goes far beyond star ratings. JUVO weighs verified reviews, return rates, brand reliability, and feature completeness — ensuring you never trade quality for price, or overpay for a brand name.</p>
+        <div class="feat-tech"><span>Quality Index</span><span>NLP Review Analysis</span><span>Value Scoring</span></div>
+      </div>
+      <div class="feat-item reveal d3">
+        <div class="feat-icon">📈</div>
+        <h3>Continuously Improving Intelligence</h3>
+        <p>The proprietary preference profile JUVO builds for each user compounds with every interaction. The longer you use JUVO, the more accurate and personalized it becomes — creating a data moat that competitors cannot easily replicate.</p>
+        <div class="feat-tech"><span>Compound Learning</span><span>Preference Graph</span><span>Adaptive AI</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="demo-cta">
+  <div class="section-marker reveal" style="justify-content:center">Try it now</div>
+  <h2 class="reveal d1">Ready to stop <em>searching?</em></h2>
+  <p class="reveal d2">Experience JUVO in action — free, right now, no sign-up required.</p>
+  <a href="https://juvoapp.base44.app" target="_blank" rel="noopener" class="demo-link-btn reveal d3">Open live demo →</a>
+</section>
+
+<footer>
+  <div class="foot-wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand-name">JU<em>V</em>O</div>
+        <p class="foot-brand-desc">Shop Smarter. Decide Faster. One AI-powered recommendation — the best product at the best price, every time.</p>
+      </div>
+      <div>
+        <div class="foot-col-title">Product</div>
+        <ul class="foot-links">
+          <li><button onclick="go('home')">Home</button></li>
+          <li><button onclick="go('demo')">Demo</button></li>
+          <li><button onclick="go('home');setTimeout(()=>document.getElementById('wl').scrollIntoView({behavior:'smooth'}),300)">Join Waitlist</button></li>
+        </ul>
+      </div>
+      <div>
+        <div class="foot-col-title">Company</div>
+        <ul class="foot-links">
+          <li><button onclick="go('investors')">Investors</button></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="foot-col-title">Legal</div>
+        <ul class="foot-links">
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <p class="foot-copy">© 2025 myJUVO LLC. All rights reserved.</p>
+      <div class="foot-legal"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></div>
+    </div>
+  </div>
+</footer>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     INVESTORS PAGE
+════════════════════════════════════════════════════ -->
+<div class="page" id="pg-investors">
+
+<section class="inv-hero">
+  <div class="inv-hero-inner">
+    <h1>The future of<br>consumer shopping<br>is <em>personal.</em></h1>
+    <div class="inv-hero-right">
+      <div class="hero-eyebrow" style="margin-bottom:24px">Investor Relations</div>
+      <p>JUVO is building the only retailer-agnostic AI platform that learns individual shoppers and delivers one trusted answer — eliminating the indecision and overwhelm that costs American consumers billions every year.</p>
+    </div>
+  </div>
+</section>
+
+<!-- EXECUTIVE SUMMARY — matching the doc exactly -->
+<section class="exec-sec">
+  <div class="exec-inner">
+
+    <div class="section-marker reveal">Executive Summary — United States · 2025</div>
+
+    <!-- KPI header row — matching doc's table -->
+    <div class="doc-kpi-row reveal d1">
+      <div class="doc-kpi">
+        <span class="doc-kpi-num">54%</span>
+        <div class="doc-kpi-desc">of shoppers feel overwhelmed online</div>
+      </div>
+      <div class="doc-kpi">
+        <span class="doc-kpi-num orange">91%</span>
+        <div class="doc-kpi-desc">have abandoned a cart due to indecision</div>
+      </div>
+      <div class="doc-kpi">
+        <span class="doc-kpi-num">$1.3T</span>
+        <div class="doc-kpi-desc">lost annually to poor purchase decisions</div>
+      </div>
+      <div class="doc-kpi">
+        <span class="doc-kpi-num orange">93%</span>
+        <div class="doc-kpi-desc">of surveyed users would use JUVO (primary data)</div>
+      </div>
+    </div>
+
+    <!-- WHY -->
+    <div class="doc-two-col reveal">
+      <div class="doc-section">
+        <div class="doc-section-label">Why — The Problem</div>
+        <h3>Indecision and overwhelm have become the defining experience of online shopping.</h3>
+        <p>American consumers face thousands of near-identical products across hundreds of retailers, with contradictory reviews and prices that vary wildly. This creates decision fatigue — a well-documented phenomenon where too many options produce worse decisions and abandoned purchases.</p>
+        <p>A 2023 Accenture study found that 54% of US consumers feel overwhelmed shopping online and 91% have abandoned a purchase due to indecision. A McKinsey report estimates this costs American shoppers over $1.3 trillion annually in returns and missed value.</p>
+        <p>Our own primary research confirmed these findings: 72% of consumers regularly feel overwhelmed when shopping, and 96% have abandoned a cart before completing a purchase.</p>
+        <p>The root cause: today's platforms are built to serve merchants and advertisers, not consumers. No platform currently gives shoppers a single, trusted, personalized answer.</p>
+      </div>
+
+      <!-- WHAT -->
+      <div class="doc-section">
+        <div class="doc-section-label">What — The Solution</div>
+        <h3>One app. <em>One answer.</em></h3>
+        <p>JUVO is an AI-powered shopping assistant that eliminates decision fatigue by delivering one confident, personalized recommendation: the best-fit product at the best available price, every time.</p>
+        <p>Users connect existing shopping accounts — Amazon, Target, Walmart — and JUVO's machine learning analyzes their purchase history, preferences, and shopping behavior to build a personalized experience.</p>
+        <p>JUVO then searches across every major retailer in real time, scores each product on price and quality, and delivers a single recommendation tailored to that specific user.</p>
+        <div class="doc-section-label" style="margin-top:24px">4th Industrial Revolution Technology</div>
+        <p>JUVO is powered by artificial intelligence and machine learning — core 4IR technologies. Unlike static comparison tools that return generic rankings, JUVO's AI learns from each purchase and continuously refines its recommendations. What makes this defensible is the proprietary preference data JUVO builds over time for each user. The longer someone uses JUVO, the more accurate and personalized it becomes — creating a compounding advantage no competitor can easily replicate.</p>
+      </div>
+    </div>
+
+    <!-- WHO -->
+    <div class="doc-section reveal">
+      <div class="doc-section-label">Who — Target Market &amp; Size</div>
+      <h3>The <em>overwhelmed</em> American consumer.</h3>
+      <p>JUVO targets the overwhelmed American consumer, with an initial focus on new homeowners and young families. These groups are ideal: they face high purchase volume and high financial stakes, yet have limited time and budget to research every decision. Psychographic data from our primary survey revealed three defining traits:</p>
+      <ul class="doc-bullets">
+        <li><strong style="color:#E8F0FF;font-weight:400">Decision-fatigued browsers (72% of respondents):</strong> digitally active shoppers who browse multiple sites before buying yet still feel uncertain.</li>
+        <li><strong style="color:#E8F0FF;font-weight:400">Convenience-driven (68% confirmed):</strong> willing to adopt tools that remove uncertainty and save time.</li>
+        <li><strong style="color:#E8F0FF;font-weight:400">Personalization hungry:</strong> distrust generic best-seller lists and want recommendations grounded in their own behavior.</li>
+      </ul>
+      <p style="margin-top:20px">There are 228 million digital shoppers in the US (eMarketer, 2024). Targeting the 54% who experience decision fatigue yields a serviceable minimum market of 123 million consumers. Importantly, 93% of our surveyed potential users said they would probably or definitely use an app that recommends products based on their personal shopping history.</p>
+      <div class="market-size-row">
+        <div class="ms-cell">
+          <div class="ms-num">228M</div>
+          <div class="ms-label">US Digital Shoppers<br>Total Addressable Market</div>
+        </div>
+        <div class="ms-cell">
+          <div class="ms-num">123M</div>
+          <div class="ms-label">Decision-Fatigued Shoppers<br>Serviceable Market</div>
+        </div>
+        <div class="ms-cell">
+          <div class="ms-num orange">2.28M</div>
+          <div class="ms-label">1% Penetration Target<br>Year 3 Goal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Competitive Advantage + Revenue side-by-side -->
+    <div class="comp-advantage reveal">
+      <div class="ca-left">
+        <div class="ca-title">Competitive Advantage</div>
+        <p class="ca-text">While shopping assistants and comparison tools exist, none combine personalized AI recommendations with real-time, cross-platform price comparison. Google Shopping serves ads. Wirecutter publishes editorial picks. Honey finds coupons. None learn from individual behavior.</p>
+        <p class="ca-text">JUVO is the only retailer-agnostic platform that builds a personal preference profile and uses it to deliver a single trusted recommendation.</p>
+        <ul class="doc-bullets">
+          <li>Only platform combining AI personalization, real-time price comparison, and quality scoring</li>
+          <li>Proprietary preference data compounds over time, creating a moat competitors cannot easily copy</li>
+          <li>Retailer-agnostic and free of ad-revenue incentives, giving users a source they can actually trust</li>
+        </ul>
+      </div>
+      <div class="ca-right">
+        <div class="ca-title">How JUVO Makes Money</div>
+        <p class="ca-text">JUVO earns revenue through retailer affiliate commissions. When a user purchases through a partner retailer (Amazon, Walmart, Target, Best Buy), JUVO earns 2 to 8% of the sale value. This model has three strategic advantages:</p>
+        <ul class="doc-bullets">
+          <li><strong style="color:#E8F0FF;font-weight:400">Free for users:</strong> no paywall maximizes adoption, especially among budget-conscious families</li>
+          <li><strong style="color:#E8F0FF;font-weight:400">Aligned incentives:</strong> JUVO only earns when users buy the right product at the best price, keeping goals fully consumer-aligned</li>
+          <li><strong style="color:#E8F0FF;font-weight:400">Scales with engagement:</strong> revenue grows directly with purchase volume, not ad spend</li>
+        </ul>
+        <div class="rev-flow" style="margin-top:20px">
+          <div class="rf-step"><div class="rf-icon">🔍</div><div class="rf-text">User searches for a product</div></div>
+          <div class="rf-step"><div class="rf-icon">✅</div><div class="rf-text">JUVO recommends best option</div></div>
+          <div class="rf-step"><div class="rf-icon">🛒</div><div class="rf-text">User taps through to retailer</div></div>
+          <div class="rf-step"><div class="rf-icon">💵</div><div class="rf-text">JUVO earns 2–8% commission</div></div>
+        </div>
+        <div class="rev-callout">
+          <p>At <strong>1% market penetration (2.28M users)</strong>, with 2 purchases per month at $65 average order value and a 4% commission rate, JUVO projects <strong>$35.6M in annual affiliate revenue within 3 years.</strong></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PITCH DECK -->
+<section class="pitch-sec">
+  <div class="pitch-inner">
+    <div class="pitch-intro-row reveal">
+      <h2>Pitch <em>Deck</em></h2>
+      <p>Full presentation slides — the complete JUVO story for investors and partners.</p>
+    </div>
+
+    <div class="slides-wrap">
+
+      <!-- Slide 01 — Cover -->
+      <div class="slide-card reveal" style="background:linear-gradient(140deg,#070D1A,#040810)">
+        <div class="slide-top"><span class="slide-n">01</span><span class="slide-name" style="color:#0FD4C0">Cover</span></div>
+        <div class="slide-body" style="text-align:center;padding:48px 28px">
+          <div style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:3.5rem;color:#E8F0FF;letter-spacing:.04em;line-height:1;margin-bottom:10px">JUVO</div>
+          <div style="font-size:.78rem;font-weight:400;letter-spacing:.15em;text-transform:uppercase;color:#0FD4C0;margin-bottom:28px">Shop Smarter. Decide Faster.</div>
+          <p style="font-style:italic;color:rgba(216,224,240,.4);font-size:.88rem;max-width:280px;margin:0 auto;line-height:1.7">"You open your laptop. You need a new pair of headphones. Two hours later, 17 tabs open — still nothing in your cart."</p>
+        </div>
+      </div>
+
+      <!-- Slide 02 — Problem -->
+      <div class="slide-card reveal d1">
+        <div class="slide-top"><span class="slide-n">02</span><span class="slide-name">The Problem</span></div>
+        <div class="slide-body">
+          <p style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:#E8F0FF;font-weight:600;margin-bottom:20px">Decision Fatigue</p>
+          <div class="s-stats">
+            <div class="s-stat"><strong>54%</strong><span>feel overwhelmed by product choices (Accenture, 2023)</span></div>
+            <div class="s-stat"><strong>91%</strong><span>have abandoned a purchase due to indecision (Accenture, 2023)</span></div>
+            <div class="s-stat"><strong>$1.3T</strong><span>lost annually to poor purchase decisions (McKinsey, 2023)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 03 — Solution -->
+      <div class="slide-card reveal">
+        <div class="slide-top"><span class="slide-n">03</span><span class="slide-name">The Solution</span></div>
+        <div class="slide-body">
+          <p style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:#0FD4C0;font-weight:600;margin-bottom:4px">One app. One answer.</p>
+          <p>AI Recommendation — analyzes shopping history to surface the single best product, not a list.</p>
+          <div class="s-features">
+            <div class="sf"><span class="sf-icon">🤖</span><div><h4>AI Recommendation</h4><p>Analyzes your shopping history and habits to surface the single best product — not a list, one confident answer.</p></div></div>
+            <div class="sf"><span class="sf-icon">💰</span><div><h4>Price Comparison</h4><p>Scans Amazon, Walmart, Target, Best Buy and more in real time to show exactly where to buy for the lowest price.</p></div></div>
+            <div class="sf"><span class="sf-icon">⭐</span><div><h4>Quality Scoring</h4><p>Rates products on a price-to-quality index so you're never trading one for the other — best value, always.</p></div></div>
+            <div class="sf"><span class="sf-icon">📈</span><div><h4>Learns Over Time</h4><p>Every purchase makes JUVO smarter. The more you use it, the more personalized and accurate it becomes.</p></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 04 — 4IR -->
+      <div class="slide-card reveal d1">
+        <div class="slide-top"><span class="slide-n">04</span><span class="slide-name">4th Industrial Revolution</span></div>
+        <div class="slide-body">
+          <p>JUVO is powered by core 4IR technologies — moving beyond static comparison tools to truly intelligent, adaptive AI.</p>
+          <div class="s-tech">
+            <div class="s-tech-row"><span class="icon">🧠</span><div><h4>AI &amp; Machine Learning</h4><p>Learns users' shopping behavior at scale</p></div></div>
+            <div class="s-tech-row"><span class="icon">⚡</span><div><h4>Real-Time Price Checking</h4><p>Live data from every major retailer simultaneously</p></div></div>
+            <div class="s-tech-row"><span class="icon">👤</span><div><h4>Personalized to Each User</h4><p>Unique preference profile per user, compounding over time</p></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 05 — Target Market -->
+      <div class="slide-card reveal">
+        <div class="slide-top"><span class="slide-n">05</span><span class="slide-name">Target Market</span></div>
+        <div class="slide-body">
+          <p style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:#E8F0FF;font-weight:600;margin-bottom:16px">The Overwhelmed American Consumer</p>
+          <div class="s-mkt-grid">
+            <div class="smg-box"><div class="icon">🏡</div><h4>New Homeowners</h4><p>High volume, high stakes, limited time</p></div>
+            <div class="smg-box"><div class="icon">👨‍👩‍👧</div><h4>Young Families</h4><p>Budget-conscious, time-poor</p></div>
+          </div>
+          <p>228 million digital shoppers in the US (eMarketer, 2024). Targeting the 54% who experience decision fatigue yields a serviceable minimum market of 123 million consumers.</p>
+          <p>93% of our surveyed potential users said they would probably or definitely use an app that recommends products based on their personal shopping history.</p>
+        </div>
+      </div>
+
+      <!-- Slide 06 — Go-to-Market -->
+      <div class="slide-card reveal d1">
+        <div class="slide-top"><span class="slide-n">06</span><span class="slide-name">Go-to-Market Strategy</span></div>
+        <div class="slide-body">
+          <p style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:#E8F0FF;font-weight:600;margin-bottom:4px">Build. Launch. Market.</p>
+          <div class="s-phases">
+            <div class="s-phase p1"><span>Phase 01 — Months 1–2</span><h4>Build the Foundation</h4><p>Waitlist landing page · 50–100 beta testers · Brand presence on TikTok &amp; Instagram · Identify micro-influencer partners</p></div>
+            <div class="s-phase p2"><span>Phase 02 — Months 2–3</span><h4>Soft Launch &amp; Learn</h4><p>Waitlist rollout with referral loop · Micro-influencer activation · App Store review collection · Targeted Meta &amp; TikTok paid ads</p></div>
+            <div class="s-phase p3"><span>Phase 03 — Months 3–4</span><h4>Scale Acquisition</h4><p>Full US public launch · Affiliate program · Push tech &amp; consumer media · Revenue optimization</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 07 — Competition -->
+      <div class="slide-card reveal">
+        <div class="slide-top"><span class="slide-n">07</span><span class="slide-name">Competition</span></div>
+        <div class="slide-body">
+          <p>Why no one else does what JUVO does.</p>
+          <table class="s-table">
+            <thead><tr><th>Competitor</th><th>AI</th><th>Price</th><th>Quality</th><th>Free</th></tr></thead>
+            <tbody>
+              <tr class="jrow"><td class="jlabel">JUVO</td><td class="sch">✓</td><td class="sch">✓</td><td class="sch">✓</td><td class="sch">✓</td></tr>
+              <tr><td>Google Shopping</td><td class="scx">✗</td><td class="sch">✓</td><td class="scx">✗</td><td class="sch">✓</td></tr>
+              <tr><td>Wirecutter</td><td class="scx">✗</td><td class="scx">✗</td><td class="sch">✓</td><td class="sch">✓</td></tr>
+              <tr><td>Honey</td><td class="scx">✗</td><td class="sch">✓</td><td class="scx">✗</td><td class="sch">✓</td></tr>
+              <tr><td>Amazon</td><td class="scp">~</td><td class="sch">✓</td><td class="scx">✗</td><td class="sch">✓</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Slide 08 — Revenue -->
+      <div class="slide-card reveal d1">
+        <div class="slide-top"><span class="slide-n">08</span><span class="slide-name">Revenue Model</span></div>
+        <div class="slide-body">
+          <p style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:#E8F0FF;font-weight:600;margin-bottom:16px">Affiliate Commissions</p>
+          <div class="s-rev-row">
+            <div class="s-rev-chip"><div class="icon">🔍</div><p>User searches for a product</p></div>
+            <div class="s-rev-chip"><div class="icon">✅</div><p>JUVO recommends best option</p></div>
+            <div class="s-rev-chip"><div class="icon">🛒</div><p>User taps through to retailer</p></div>
+            <div class="s-rev-chip"><div class="icon">💵</div><p>JUVO earns 2–8% commission</p></div>
+          </div>
+          <p>Free for users · Revenue scales with engagement · Aligned incentives</p>
+          <div class="s-highlight">
+            <strong>$35.6M</strong>
+            <p>Projected annual affiliate revenue at 1% market penetration (2.28M users), 2 purchases/month, $65 AOV, 4% commission — within 3 years.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 09 — Closing (full width) -->
+      <div class="slide-card slide-full reveal">
+        <div class="slide-top"><span class="slide-n">09</span><span class="slide-name" style="color:#0FD4C0">Closing</span></div>
+        <div class="slide-closing-body">
+          <div class="closing-left">
+            <h2>Stop searching.<br><em>Start shopping smarter.</em></h2>
+            <p>JUVO gives every shopper one confident answer — the best product, at the best price, every time. We are building the infrastructure for the future of consumer commerce.</p>
+          </div>
+          <div class="closing-right">
+            <div class="logo-big">JUVO</div>
+            <a href="https://juvoapp.base44.app" target="_blank" rel="noopener">Experience JUVO →</a>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /slides-wrap -->
+  </div>
+</section>
+
+<footer>
+  <div class="foot-wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand-name">JU<em>V</em>O</div>
+        <p class="foot-brand-desc">Shop Smarter. Decide Faster. One AI-powered recommendation — the best product at the best price, every time.</p>
+      </div>
+      <div>
+        <div class="foot-col-title">Product</div>
+        <ul class="foot-links">
+          <li><button onclick="go('home')">Home</button></li>
+          <li><button onclick="go('demo')">Demo</button></li>
+          <li><button onclick="go('home');setTimeout(()=>document.getElementById('wl').scrollIntoView({behavior:'smooth'}),300)">Join Waitlist</button></li>
+        </ul>
+      </div>
+      <div>
+        <div class="foot-col-title">Company</div>
+        <ul class="foot-links">
+          <li><button onclick="go('investors')">Investors</button></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="foot-col-title">Legal</div>
+        <ul class="foot-links">
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <p class="foot-copy">© 2025 myJUVO LLC. All rights reserved.</p>
+      <div class="foot-legal"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></div>
+    </div>
+  </div>
+</footer>
+</div>
+
+<script>
+// ── CURSOR
+const cur=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';},{passive:true});
+(function tick(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(tick)})();
+
+// ── NAV
+function go(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nbtn').forEach(x=>x.classList.remove('active'));
+  const pg=document.getElementById('pg-'+p);
+  if(pg)pg.classList.add('active');
+  const btn=document.querySelector('[data-p="'+p+'"]');
+  if(btn)btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(doReveal,100);
+}
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled',window.scrollY>40);
+},{passive:true});
+
+// ── WAITLIST
+function signup(inId,succId,formId){
+  const inp=document.getElementById(inId);
+  const em=inp.value.trim();
+  if(!em||!em.includes('@')){
+    inp.style.borderBottom='1px solid #FF5B2E';
+    setTimeout(()=>inp.style.borderBottom='',1500);
+    return;
+  }
+  document.getElementById(formId).style.display='none';
+  document.getElementById(succId).classList.add('show');
+  console.log('Waitlist:',em);
+}
+document.querySelectorAll('.waitlist-input-group input').forEach(inp=>{
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')inp.parentElement.querySelector('button').click();});
+});
+
+// ── SCROLL REVEAL
+function doReveal(){
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');obs.unobserve(e.target);}});
+  },{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.page.active .reveal').forEach(el=>{
+    el.classList.remove('in');obs.observe(el);
+  });
+}
+doReveal();
+
+// ── PARALLAX ORB
+const hv=document.querySelector('.hero-right');
+if(hv){
+  document.addEventListener('mousemove',e=>{
+    if(!document.getElementById('pg-home').classList.contains('active'))return;
+    const x=(e.clientX/window.innerWidth-.5)*2;
+    const y=(e.clientY/window.innerHeight-.5)*2;
+    const ow=hv.querySelector('.orb-wrap');
+    if(ow)ow.style.transform=`translate(-50%,-50%) translateY(${y*-12}px) rotateX(${y*-6}deg) rotateY(${x*8}deg)`;
+    hv.querySelectorAll('.data-chip').forEach((c,i)=>{
+      const f=(i+1)*.35;
+      c.style.transform=`translateX(${x*f*-10}px) translateY(${y*f*-10}px)`;
+    });
+  });
+}
+</script>
+</body>
+</html>
